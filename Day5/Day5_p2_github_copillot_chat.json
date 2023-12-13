@@ -1,0 +1,15 @@
+{
+  "requesterUsername": "Matthew-Mitchell",
+  "requesterAvatarIconUri": {
+    "$mid": 1,
+    "path": "/Matthew-Mitchell",
+    "scheme": "https",
+    "authority": "avatars.githubusercontent.com"
+  },
+  "responderUsername": "GitHub Copilot",
+  "welcomeMessage": [
+    "Hi **@Matthew-Mitchell**, how can I help you?"
+  ],
+  "requests": [],
+  "providerId": "copilot"
+}
