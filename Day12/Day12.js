@@ -5,6 +5,7 @@
 const fs = require('fs');
 
 const filePath = 'ex.txt';
+// const filePath = 'input.txt';
 const lines = [];
 const springs = [];
 const clues = [];
@@ -43,14 +44,13 @@ function replaceQuestionMarks(str) {
 
 function line_variation_count(line) {
     const extractedCharacters = line.match(/[?.#]*/g)[0] || []
-    const digits = line.match(/\d+(,\d+)*/g);
-    digits = digits[0].split(',').map(digit => parseInt(digit))
+    const digits = line.match(/\d+(,\d+)*/g)[0].split(',').map(digit => parseInt(digit));
     const combos0 = replaceQuestionMarks(extractedCharacters)
 
     contiguous_damaged = combos0.map(combo => combo.match(/([#]+)/g));//.map(match => match.length));
     const continguous_damaged_lengths = contiguous_damaged.map(matches => matches.map(match => match.length));
     const nmatching = continguous_damaged_lengths.filter(match => arraysAreEqual(match, digits)).length;
-
+    return nmatching
 }
 fs.readFile(filePath, 'utf8', (err, data) => {
     if (err) {
@@ -58,7 +58,7 @@ fs.readFile(filePath, 'utf8', (err, data) => {
         return;
     }
     
-    lines.push(...data.split('\n'));
+    lines.push(...data.split('\n').filter(line => line.trim() !== ''));
     // const extractedDigits = lines.map(line => {
     //     const digits = line.match(/\d+(,\d+)*/g);
         
@@ -86,7 +86,7 @@ fs.readFile(filePath, 'utf8', (err, data) => {
     // console.log(nmatching);
 
     const line_variation_counts = lines.map(line_variation_count);
-    console.log(line_variation_counts);
+    console.log(line_variation_counts.reduce((a, b) => a + b, 0));
 
     // console.log(continguous_damaged_lengths[2]);
     // console.log(extractedDigits[0]);
