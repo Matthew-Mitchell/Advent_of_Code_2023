@@ -8,6 +8,7 @@ class main:
 		self.stepcount2 = 0
 		self.node = "AAA"
 		self.p2nodes = None
+		self.p2node_cycles = None
 		#Increase Recursion Limit
 		sys.setrecursionlimit(16385)
 	def read(self, filename):
@@ -57,10 +58,16 @@ class main:
 		self.pathlength()
 	def pathlength2(self):
 		#follow instructions
+		#Instead of recursion, just go ad infinitum:
 		if self.p2nodes == None:
 			#Initialize p2nodes
 			self.p2nodes = [node for node in self.nodes if node[-1]=="A"]
-		for c in self.directions:
+			self.original_p2nodes = self.p2nodes
+			self.p2node_cycles = [None for node in self.p2nodes]
+			self.p2node_zzzs = {} #Dict of lists
+		while (any([n[-1]!="Z" for n in self.p2nodes])) and (any([x==None for x in self.p2node_cycles])):
+			idx = self.stepcount % len(self.directions)
+			c = self.directions[idx]
 			self.stepcount += 1
 			LRs = [self.neighbors[node] for node in self.p2nodes]
 			if c == "L":
@@ -71,14 +78,32 @@ class main:
 				assert False , f"Hit Error! Encountered: {c} in instructions."
 			self.p2nodes = next_nodes
 			#if zzz terminate
-			if all([n[-1]=="Z" for n in self.p2nodes]):
+			zzzs = [n[-1]=="Z" for n in self.p2nodes]
+			nodes_that_reset_in_cycle = [(n, node) for n, node in enumerate(next_nodes) if node == self.original_p2nodes[n]]
+			if all(zzzs):
 				print(f"On step: {self.stepcount} from: {self.p2nodes} to: {next_nodes} via: {c}")
 				print(f"Journey Completed! Process took: {self.stepcount}")
 				#Exit
 				return None
+			
+			elif (len(nodes_that_reset_in_cycle) > 0) & (idx == 0):
+				for n, node in nodes_that_reset_in_cycle:
+					print(f"Node {n}: {node} resets after {self.stepcount} steps.")
+					#Update Node cycles
+					self.p2node_cycles.pop(n)
+					self.p2node_cycles.insert(n, self.stepcount)
+			elif any(zzzs):
+				for n, TF in enumerate(zzzs):
+					if TF:
+						node = self.original_p2nodes[n]
+						#print(f"Node {n}: {node} ends in Z after {self.stepcount} steps.")
+						self.p2node_zzzs[node] = self.stepcount
 			elif self.stepcount % 100 == 0:
-				pass
-				sys.stdout.write(f"\rOn step: {self.stepcount} from: {self.p2nodes[:2]} to: {next_nodes[:2]} via: {c}")
+				sys.stdout.write(f"\rOn step: {self.stepcount:,}            ")
+				sys.stdout.flush()
 		#If ZZZ not found, continue searching!
-		self.pathlength2()
+		print("While loop completed!!!!")
+		# print("This does not occur, since termination is within while loop from return.")
+		# print(f"Journey Completed! Process took: {self.stepcount}")
+		#Now its up to you! Please Calculate the Journey length based on zzzs and cycles.
 
