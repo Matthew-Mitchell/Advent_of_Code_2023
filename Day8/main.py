@@ -56,6 +56,29 @@ class main:
 				#print(f"On step: {self.stepcount} from: {cur_node} to: {next_node} via: {c}")				
 		#If ZZZ not found, continue searching!
 		self.pathlength()
+	def traverse_p2_path(self):
+		start_node = self.node
+		cur_node = start_node
+		stepcount = 0 #reset step count
+		zcount = 0
+		node_zzzs = []
+		for c in self.directions:
+			stepcount += 1
+			LR = self.neighbors[cur_node]
+			if c == "L":
+				next_node = LR[0]
+			elif c == "R":
+				next_node = LR[1]
+			else:
+				assert False , f"Hit Error! Encountered: {c} in instructions."
+			cur_node = next_node
+			#Record if Ends in Z....
+			if next_node[-1] == "Z":
+				node_zzzs.append(stepcount)
+				zcount += 1
+		self.p2node_zzzs[start_node] = node_zzzs
+		self.p2node_maps[start_node] = next_node
+		self.p2node_zcount_maps[start_node] = zcount
 	def pathlength2(self):
 		#follow instructions
 		#Instead of recursion, just go ad infinitum:
@@ -63,47 +86,17 @@ class main:
 			#Initialize p2nodes
 			self.p2nodes = [node for node in self.nodes if node[-1]=="A"]
 			self.original_p2nodes = self.p2nodes
-			self.p2node_cycles = [None for node in self.p2nodes]
+			self.p2node_maps = {}
 			self.p2node_zzzs = {} #Dict of lists
-		while (any([n[-1]!="Z" for n in self.p2nodes])) and (any([x==None for x in self.p2node_cycles])):
-			idx = self.stepcount % len(self.directions)
-			c = self.directions[idx]
-			self.stepcount += 1
-			LRs = [self.neighbors[node] for node in self.p2nodes]
-			if c == "L":
-				next_nodes = [LR[0] for LR in LRs]
-			elif c == "R":
-				next_nodes = [LR[1] for LR in LRs]
-			else:
-				assert False , f"Hit Error! Encountered: {c} in instructions."
-			self.p2nodes = next_nodes
-			#if zzz terminate
-			zzzs = [n[-1]=="Z" for n in self.p2nodes]
-			nodes_that_reset_in_cycle = [(n, node) for n, node in enumerate(next_nodes) if node == self.original_p2nodes[n]]
-			if all(zzzs):
-				print(f"On step: {self.stepcount} from: {self.p2nodes} to: {next_nodes} via: {c}")
-				print(f"Journey Completed! Process took: {self.stepcount}")
-				#Exit
-				return None
-			
-			elif (len(nodes_that_reset_in_cycle) > 0) & (idx == 0):
-				for n, node in nodes_that_reset_in_cycle:
-					print(f"Node {n}: {node} resets after {self.stepcount} steps.")
-					#Update Node cycles
-					self.p2node_cycles.pop(n)
-					self.p2node_cycles.insert(n, self.stepcount)
-			elif any(zzzs):
-				for n, TF in enumerate(zzzs):
-					if TF:
-						node = self.original_p2nodes[n]
-						#print(f"Node {n}: {node} ends in Z after {self.stepcount} steps.")
-						self.p2node_zzzs[node] = self.stepcount
-			elif self.stepcount % 100 == 0:
-				sys.stdout.write(f"\rOn step: {self.stepcount:,}            ")
-				sys.stdout.flush()
-		#If ZZZ not found, continue searching!
-		print("While loop completed!!!!")
-		# print("This does not occur, since termination is within while loop from return.")
-		# print(f"Journey Completed! Process took: {self.stepcount}")
+			self.p2node_zcount_maps = {}
+		nodes = self.nodes
+		for n, node in enumerate(nodes):
+			#Where does this node terminate after the direction sequence?
+			#What z nodes does it encounter along the journey?
+			sys.stdout.write(f"\r On node {node:^6} {n:<4,} of {len(nodes):<4,}    ")
+			sys.stdout.flush()
+			self.node = node
+			self.traverse_p2_path()
+		print("Node mappings completed!!!!")
 		#Now its up to you! Please Calculate the Journey length based on zzzs and cycles.
 

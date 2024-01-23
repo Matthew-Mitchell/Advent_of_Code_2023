@@ -4,8 +4,8 @@
 
 const fs = require('fs');
 
-const filePath = 'ex.txt';
-// const filePath = 'input.txt';
+// const filePath = 'ex.txt';
+const filePath = 'input.txt';
 const lines = [];
 const springs = [];
 const clues = [];
@@ -42,15 +42,21 @@ function replaceQuestionMarks(str) {
     return combinations;
 }
 
-function line_variation_count(line) {
-    const extractedCharacters = line.match(/[?.#]*/g)[0] || []
-    const digits = line.match(/\d+(,\d+)*/g)[0].split(',').map(digit => parseInt(digit));
-    const combos0 = replaceQuestionMarks(extractedCharacters)
 
-    contiguous_damaged = combos0.map(combo => combo.match(/([#]+)/g));//.map(match => match.length));
-    const continguous_damaged_lengths = contiguous_damaged.map(matches => matches.map(match => match.length));
-    const nmatching = continguous_damaged_lengths.filter(match => arraysAreEqual(match, digits)).length;
-    return nmatching
+function line_variation_count(line) {
+    try {
+        const extractedCharacters = line.match(/[?.#]*/g)[0] || [];
+        const digits = line.match(/\d+(,\d+)*/g)[0].split(',').map(digit => parseInt(digit));
+        const combos0 = replaceQuestionMarks(extractedCharacters);
+
+        contiguous_damaged = combos0.map(combo => combo.match(/([#]+)/g));//.map(match => match.length));
+        const continguous_damaged_lengths = contiguous_damaged.map(matches => matches.map(match => match.length));
+        const nmatching = continguous_damaged_lengths.filter(match => arraysAreEqual(match, digits)).length;
+        return nmatching;
+    } catch (error) {
+        console.log("Error:", error);
+        console.log("Line:", line);
+    }
 }
 fs.readFile(filePath, 'utf8', (err, data) => {
     if (err) {
